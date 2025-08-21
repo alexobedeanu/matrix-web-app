@@ -1,3 +1,4 @@
+// ./src/app/api/auth/[...nextauth]/route.ts
 import NextAuth from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
@@ -24,9 +25,7 @@ const handler = NextAuth({
         }
 
         const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email
-          }
+          where: { email: credentials.email }
         })
 
         if (!user || !user.password) {
@@ -55,13 +54,20 @@ const handler = NextAuth({
   },
   callbacks: {
     async session({ session, user }) {
-      if (user) {
-        session.user.id = user.id
+      // Fix rapid: verificăm existența și returnăm o nouă sesiune cu id-ul injectat
+      if (user && session?.user) {
+        return {
+          ...session,
+          user: {
+            ...session.user,
+            id: user.id,
+          },
+        }
       }
       return session
     },
     async redirect({ url, baseUrl }) {
-      // Redirect to home page after successful login
+      // Redirect către homepage după login reușit
       if (url.startsWith('/') && !url.includes('/login')) return `${baseUrl}${url}`
       if (url.startsWith(baseUrl)) return url
       return baseUrl
