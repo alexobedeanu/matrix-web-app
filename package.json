@@ -7,7 +7,7 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "vercel-build": "prisma generate && prisma migrate deploy && next build --turbopack",
+    "vercel-build": "prisma generate && prisma db push && next build --turbopack",
     "postinstall": "prisma generate"
   },
   "dependencies": {
