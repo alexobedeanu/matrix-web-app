@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model User {
@@ -21,6 +21,25 @@ model User {
   updatedAt     DateTime  @updatedAt
   accounts      Account[]
   sessions      Session[]
+  
+  // Gamification fields
+  hackerAlias   String?   @unique
+  bio           String?
+  level         Int       @default(1)
+  xp            Int       @default(0)
+  coins         Int       @default(0)
+  streak        Int       @default(0)
+  lastActive    DateTime?
+  clanId        String?
+  
+  // Relations
+  clan          Clan?     @relation(fields: [clanId], references: [id])
+  achievements  UserAchievement[]
+  puzzleSolves  PuzzleSolve[]
+  missions      UserMission[]
+  inventory     UserInventory[]
+  duels         Duel[] @relation("DuelParticipant")
+  duelsSent     Duel[] @relation("DuelChallenger")
 }
 
 model Account {
@@ -55,4 +74,216 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+// Gamification Models
+model Clan {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  image       String?
+  leaderId    String?
+  xp          Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  members     User[]
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  icon        String
+  category    AchievementCategory
+  condition   String   // JSON condition for unlocking
+  xpReward    Int      @default(0)
+  coinReward  Int      @default(0)
+  createdAt   DateTime @default(now())
+  
+  users       UserAchievement[]
+}
+
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime    @default(now())
+  
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, achievementId])
+}
+
+model Puzzle {
+  id          String       @id @default(cuid())
+  title       String
+  description String
+  category    PuzzleCategory
+  difficulty  Difficulty
+  content     String       // JSON puzzle content
+  solution    String       // JSON solution
+  xpReward    Int
+  coinReward  Int
+  hints       String?      // JSON array of hints
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+  solves      PuzzleSolve[]
+  duels       Duel[]
+}
+
+model PuzzleSolve {
+  id        String   @id @default(cuid())
+  userId    String
+  puzzleId  String
+  timeToSolve Int?   // seconds
+  hintsUsed Int      @default(0)
+  solvedAt  DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  puzzle    Puzzle   @relation(fields: [puzzleId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, puzzleId])
+}
+
+model Mission {
+  id          String      @id @default(cuid())
+  title       String
+  description String
+  type        MissionType
+  requirement String      // JSON requirement
+  xpReward    Int
+  coinReward  Int
+  duration    Int         // hours, 0 for permanent
+  isDaily     Boolean     @default(false)
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  
+  users       UserMission[]
+}
+
+model UserMission {
+  id          String      @id @default(cuid())
+  userId      String
+  missionId   String
+  progress    Int         @default(0)
+  isCompleted Boolean     @default(false)
+  startedAt   DateTime    @default(now())
+  completedAt DateTime?
+  expiresAt   DateTime?
+  
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mission     Mission     @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, missionId])
+}
+
+// Enums
+enum AchievementCategory {
+  PUZZLE_SOLVING
+  SOCIAL
+  PROGRESSION
+  SPECIAL
+}
+
+enum PuzzleCategory {
+  CRYPTOGRAPHY
+  REVERSE_ENGINEERING
+  WEB_SECURITY
+  NETWORK
+  FORENSICS
+  PROGRAMMING
+  LOGIC
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+  EXPERT
+  LEGENDARY
+}
+
+enum MissionType {
+  SOLVE_PUZZLES
+  DAILY_LOGIN
+  XP_GAIN
+  SOCIAL_INTERACTION
+  STREAK_MAINTAIN
+}
+
+// Inventory System
+model InventoryItem {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  type        ItemType
+  rarity      ItemRarity
+  effect      String   // JSON effect data
+  icon        String
+  price       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  
+  users       UserInventory[]
+}
+
+model UserInventory {
+  id       String @id @default(cuid())
+  userId   String
+  itemId   String
+  quantity Int    @default(1)
+  equipped Boolean @default(false)
+  obtainedAt DateTime @default(now())
+  
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item     InventoryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, itemId])
+}
+
+// PvP Dueling System
+model Duel {
+  id            String     @id @default(cuid())
+  challengerId  String
+  challengeeId  String
+  status        DuelStatus @default(PENDING)
+  puzzleId      String?
+  challengerScore Int     @default(0)
+  challengeeScore Int     @default(0)
+  startedAt     DateTime?
+  endedAt       DateTime?
+  createdAt     DateTime  @default(now())
+  
+  challenger    User      @relation("DuelChallenger", fields: [challengerId], references: [id], onDelete: Cascade)
+  challengee    User      @relation("DuelParticipant", fields: [challengeeId], references: [id], onDelete: Cascade)
+  puzzle        Puzzle?   @relation(fields: [puzzleId], references: [id])
+}
+
+enum ItemType {
+  TOOL
+  EXPLOIT
+  DECODER
+  SCANNER
+  ENHANCER
+  COSMETIC
+}
+
+enum ItemRarity {
+  COMMON
+  UNCOMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+enum DuelStatus {
+  PENDING
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
 }

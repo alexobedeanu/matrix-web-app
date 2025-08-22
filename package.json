@@ -7,7 +7,11 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "vercel-build": "prisma generate && prisma db push && next build --turbopack",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:ci": "jest --ci --coverage --watchAll=false",
+    "vercel-build": "prisma generate && prisma db push && npm run test:ci && next build --turbopack",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -23,14 +27,19 @@
   "devDependencies": {
     "@eslint/eslintrc": "3.2.0",
     "@tailwindcss/postcss": "^4.0.0-alpha.14",
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "20.14.12",
     "@types/react": "19.0.7",
     "@types/react-dom": "19.0.3",
     "eslint": "9.9.1",
     "eslint-config-next": "15.5.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "prisma": "6.14.0",
     "tailwindcss": "^4.0.0-alpha.14",
-    "typescript": "5.5.4",
-    "prisma": "6.14.0"
+    "typescript": "5.5.4"
   },
   "engines": {
     "node": ">=18.18.0"

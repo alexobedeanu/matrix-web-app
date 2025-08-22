@@ -37,42 +37,72 @@ export default function Home() {
         <div className="grid-pattern animate-pulse"></div>
       </div>
 
-      {/* Cyber Navbar */}
-      <nav className="relative z-50 border-b border-green-400/30 bg-black/50 backdrop-blur-sm">
-        <div className="container mx-auto px-6 py-4">
+      {/* Clean Modern Navbar */}
+      <nav className="relative z-50 border-b border-green-400/20 bg-black/80 backdrop-blur-md">
+        <div className="container mx-auto px-6 py-3">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-cyan-400 rounded-sm animate-pulse"></div>
-              <h2 className="text-2xl font-mono font-bold text-green-400 tracking-wider">
-                {'>'} CYBER_PORTAL
+              <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-cyan-400 rounded"></div>
+              <h2 className="text-xl font-mono font-bold text-green-400 tracking-wide">
+                CYBER_PORTAL
               </h2>
             </div>
-            <div className="flex items-center gap-4">
+            
+            {session && (
+              <div className="hidden lg:flex items-center space-x-1">
+                {[
+                  { href: '/puzzles', label: 'Puzzles', color: 'text-purple-400 hover:text-purple-300' },
+                  { href: '/leaderboard', label: 'Ranks', color: 'text-yellow-400 hover:text-yellow-300' },
+                  { href: '/achievements', label: 'Badges', color: 'text-purple-400 hover:text-purple-300' },
+                  { href: '/missions', label: 'Missions', color: 'text-orange-400 hover:text-orange-300' },
+                  { href: '/clans', label: 'Clans', color: 'text-pink-400 hover:text-pink-300' },
+                  { href: '/chat', label: 'Chat', color: 'text-green-400 hover:text-green-300' },
+                  { href: '/inventory', label: 'Inventory', color: 'text-blue-400 hover:text-blue-300' },
+                  { href: '/duels', label: 'Duels', color: 'text-red-400 hover:text-red-300' },
+                ].map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`px-3 py-2 font-mono text-sm transition-colors ${item.color}`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            <div className="flex items-center gap-3">
               {session ? (
-                <div className="flex items-center space-x-4">
-                  <div className="text-cyan-400 font-mono text-sm">
-                    USER: <span className="text-green-400">{session.user?.name || session.user?.email}</span>
+                <div className="flex items-center space-x-3">
+                  <div className="text-cyan-400 font-mono text-sm hidden md:block">
+                    {session.user?.name || session.user?.email}
                   </div>
+                  <Link
+                    href="/profile"
+                    className="text-cyan-400 hover:text-green-400 transition-colors font-mono text-sm px-3 py-1 border border-cyan-400/30 hover:border-green-400/50 rounded"
+                  >
+                    Profile
+                  </Link>
                   <button
                     onClick={() => signOut()}
-                    className="bg-gradient-to-r from-red-600 to-red-400 text-black px-4 py-2 font-mono font-bold tracking-wide hover:from-red-400 hover:to-red-600 transition-all transform hover:scale-105 border border-red-400/50"
+                    className="bg-red-600/80 hover:bg-red-600 text-white px-3 py-1 font-mono text-sm transition-all rounded"
                   >
-                    [LOGOUT]
+                    Logout
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-3">
                   <Link
                     href="/login"
-                    className="text-cyan-400 hover:text-green-400 transition-colors font-mono tracking-wide border border-cyan-400/50 px-3 py-1 hover:border-green-400/50"
+                    className="text-cyan-400 hover:text-green-400 transition-colors font-mono text-sm px-3 py-1 border border-cyan-400/30 hover:border-green-400/50 rounded"
                   >
-                    [LOGIN]
+                    Login
                   </Link>
                   <Link
                     href="/register"
-                    className="bg-gradient-to-r from-green-400 to-cyan-400 text-black px-4 py-2 font-mono font-bold tracking-wide hover:from-cyan-400 hover:to-green-400 transition-all transform hover:scale-105"
+                    className="bg-gradient-to-r from-green-400 to-cyan-400 text-black px-4 py-1 font-mono font-bold text-sm hover:from-cyan-400 hover:to-green-400 transition-all rounded"
                   >
-                    [REGISTER]
+                    Register
                   </Link>
                 </div>
               )}
@@ -82,116 +112,94 @@ export default function Home() {
       </nav>
 
       {/* Main Content */}
-      <div className="relative z-10 container mx-auto px-6 py-20">
-        <div className="text-center">
-          {/* Glitchy Title */}
-          <div className="mb-12">
-            <h1 className="text-7xl md:text-8xl font-mono font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-cyan-400 to-purple-400 mb-6 leading-tight tracking-wider animate-pulse">
-              {session ? (
-                <>
-                  {'>'} WELCOME_TO_THE_MATRIX
-                  <br />
-                  <span className="text-4xl text-green-400">USER: {session.user?.name || 'HACKER'}</span>
-                </>
-              ) : (
-                <>
-                  {'>'} ENTER_THE_MATRIX
-                  <br />
-                  <span className="text-4xl text-cyan-400">ACCESS_POINT_READY</span>
-                </>
-              )}
-            </h1>
-            
-            <div className="max-w-3xl mx-auto">
-              <p className="text-xl text-green-300 font-mono leading-relaxed mb-8">
-                {session 
-                  ? `${'>'}${'>'}${'>'} CONNECTION_ESTABLISHED ${'>'}${'>'}${'>'} ALL_SYSTEMS_OPERATIONAL ${'>'}${'>'}${'>'} WELCOME_TO_THE_GRID` 
-                  : `${'>'}${'>'}${'>'} NEXT.JS_15.CYBER_FRAMEWORK ${'>'}${'>'}${'>'} TYPESCRIPT_SECURITY_PROTOCOLS ${'>'}${'>'}${'>'} AUTHENTICATION_MATRIX_ENABLED`
-                }
-              </p>
-            </div>
-          </div>
-          
-          {/* Status Panel */}
-          {session && (
-            <div className="bg-black/70 border border-green-400/50 rounded-none p-8 mb-16 max-w-md mx-auto backdrop-blur-sm">
-              <div className="flex items-center justify-center mb-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-cyan-400 animate-pulse"></div>
-              </div>
-              <h3 className="text-xl font-mono font-bold text-green-400 mb-4">{'>>>'} ACCESS_GRANTED</h3>
-              <div className="text-left font-mono text-sm space-y-2">
-                <p className="text-cyan-400">EMAIL: <span className="text-green-400">{session.user?.email}</span></p>
-                {session.user?.name && (
-                  <p className="text-cyan-400">NAME: <span className="text-green-400">{session.user.name}</span></p>
+      <div className="relative z-10">
+        {/* Hero Section */}
+        <div className="container mx-auto px-6 py-16">
+          <div className="text-center">
+            <div className="mb-12">
+              <h1 className="text-5xl md:text-6xl font-mono font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-cyan-400 to-purple-400 mb-6 leading-tight">
+                {session ? (
+                  <>
+                    Welcome to the Matrix
+                    <br />
+                    <span className="text-2xl text-green-400">Hello, {session.user?.name || 'Hacker'}</span>
+                  </>
+                ) : (
+                  <>
+                    Enter the Matrix
+                    <br />
+                    <span className="text-2xl text-cyan-400">Access Point Ready</span>
+                  </>
                 )}
-                <p className="text-cyan-400">STATUS: <span className="text-green-400 animate-pulse">ONLINE</span></p>
+              </h1>
+              
+              <div className="max-w-2xl mx-auto">
+                <p className="text-lg text-green-300/80 font-mono leading-relaxed mb-8">
+                  {session 
+                    ? "Connection established. All systems operational. Welcome to the grid." 
+                    : "Next.js 15 powered cyberpunk hacking simulator with advanced security protocols."
+                  }
+                </p>
               </div>
             </div>
-          )}
+          </div>
+        </div>
           
-          {/* Cyber Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
-            <div className="bg-black/70 border border-cyan-400/50 p-8 hover:border-green-400/70 transition-all group backdrop-blur-sm">
-              <div className="w-16 h-16 bg-gradient-to-r from-cyan-400 to-green-400 mx-auto mb-6 animate-pulse group-hover:animate-spin transition-all"></div>
-              <h3 className="text-xl font-mono font-bold text-cyan-400 mb-4 group-hover:text-green-400 transition-colors">
-                {'>'} QUANTUM_SPEED
-              </h3>
-              <p className="text-green-300 font-mono text-sm leading-relaxed">
-                TURBOPACK_ENGINE.COMPILE() → BLAZING_FAST_PERFORMANCE → NEXT.JS_15.OPTIMIZED
-              </p>
-            </div>
-            
-            <div className="bg-black/70 border border-purple-400/50 p-8 hover:border-cyan-400/70 transition-all group backdrop-blur-sm">
-              <div className="w-16 h-16 bg-gradient-to-r from-purple-400 to-cyan-400 mx-auto mb-6 animate-pulse group-hover:animate-bounce transition-all"></div>
-              <h3 className="text-xl font-mono font-bold text-purple-400 mb-4 group-hover:text-cyan-400 transition-colors">
-                {'>'} SECURITY_MATRIX
-              </h3>
-              <p className="text-green-300 font-mono text-sm leading-relaxed">
-                NEXTAUTH.ENCRYPT() → OAUTH2.GOOGLE_PROTOCOL → DATABASE.SECURE_STORAGE
-              </p>
-            </div>
-            
-            <div className="bg-black/70 border border-green-400/50 p-8 hover:border-purple-400/70 transition-all group backdrop-blur-sm">
-              <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-purple-400 mx-auto mb-6 animate-pulse group-hover:animate-ping transition-all"></div>
-              <h3 className="text-xl font-mono font-bold text-green-400 mb-4 group-hover:text-purple-400 transition-colors">
-                {'>'} NEURAL_INTERFACE
-              </h3>
-              <p className="text-green-300 font-mono text-sm leading-relaxed">
-                TAILWIND.RESPONSIVE() → ADAPTIVE_UI_MATRIX → CROSS_PLATFORM.COMPATIBLE
-              </p>
+        {/* Feature Cards */}
+        {session && (
+          <div className="container mx-auto px-6 py-8">
+            <h2 className="text-2xl font-mono font-bold text-center text-green-400 mb-8">Available Systems</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+              {[
+                { href: '/puzzles', title: 'Hacking Challenges', desc: 'Solve cybersecurity puzzles', icon: '🧩', color: 'border-purple-400/30 hover:border-purple-400/60' },
+                { href: '/duels', title: 'PvP Duels', desc: 'Challenge other hackers', icon: '⚔️', color: 'border-red-400/30 hover:border-red-400/60' },
+                { href: '/inventory', title: 'Digital Arsenal', desc: 'Collect hacking tools', icon: '🛠️', color: 'border-blue-400/30 hover:border-blue-400/60' },
+                { href: '/chat', title: 'Darknet Chat', desc: 'Communicate securely', icon: '💬', color: 'border-green-400/30 hover:border-green-400/60' },
+                { href: '/achievements', title: 'Achievements', desc: 'Track your progress', icon: '🏆', color: 'border-yellow-400/30 hover:border-yellow-400/60' },
+                { href: '/missions', title: 'Daily Missions', desc: 'Complete objectives', icon: '📋', color: 'border-orange-400/30 hover:border-orange-400/60' },
+                { href: '/clans', title: 'Clans', desc: 'Join a team', icon: '👥', color: 'border-pink-400/30 hover:border-pink-400/60' },
+                { href: '/leaderboard', title: 'Leaderboard', desc: 'See top hackers', icon: '📊', color: 'border-cyan-400/30 hover:border-cyan-400/60' },
+              ].map((feature, index) => (
+                <Link key={feature.href} href={feature.href} className={`
+                  block bg-black/50 border ${feature.color} rounded-lg p-6 
+                  hover:bg-black/70 transition-all duration-300 group backdrop-blur-sm
+                  hover:scale-105 hover:shadow-lg hover:shadow-green-400/10
+                `}>
+                  <div className="text-3xl mb-3 text-center group-hover:scale-110 transition-transform">
+                    {feature.icon}
+                  </div>
+                  <h3 className="text-lg font-mono font-bold text-green-400 mb-2 text-center group-hover:text-cyan-400 transition-colors">
+                    {feature.title}
+                  </h3>
+                  <p className="text-green-300/70 font-mono text-sm text-center leading-relaxed">
+                    {feature.desc}
+                  </p>
+                </Link>
+              ))}
             </div>
           </div>
+        )}
           
-          {/* Action Buttons */}
-          {!session && (
-            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+        {/* Action Buttons */}
+        {!session && (
+          <div className="container mx-auto px-6 py-8">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
               <Link
                 href="/register"
-                className="bg-gradient-to-r from-green-400 to-cyan-400 text-black px-10 py-4 font-mono font-bold text-lg tracking-wider hover:from-cyan-400 hover:to-purple-400 transition-all transform hover:scale-110 shadow-lg hover:shadow-cyan-400/50"
+                className="bg-gradient-to-r from-green-400 to-cyan-400 text-black px-8 py-3 font-mono font-bold text-lg hover:from-cyan-400 hover:to-purple-400 transition-all hover:scale-105 shadow-lg hover:shadow-cyan-400/50 rounded-lg text-center"
               >
-                {'>'} JACK_IN
+                Join the Matrix
               </Link>
               <Link
                 href="/login"
-                className="border-2 border-green-400 text-green-400 px-10 py-4 font-mono font-bold text-lg tracking-wider hover:bg-green-400 hover:text-black transition-all transform hover:scale-110 hover:shadow-lg hover:shadow-green-400/50"
+                className="border-2 border-green-400 text-green-400 px-8 py-3 font-mono font-bold text-lg hover:bg-green-400 hover:text-black transition-all hover:scale-105 hover:shadow-lg hover:shadow-green-400/50 rounded-lg text-center"
               >
-                {'>'} ACCESS_TERMINAL
+                Access Terminal
               </Link>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
-
-      <style jsx>{`
-        .grid-pattern {
-          background-image: 
-            linear-gradient(rgba(34, 197, 94, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(34, 197, 94, 0.1) 1px, transparent 1px);
-          background-size: 50px 50px;
-          width: 100%;
-          height: 100%;
-        }
-      `}</style>
     </div>
   );
 }

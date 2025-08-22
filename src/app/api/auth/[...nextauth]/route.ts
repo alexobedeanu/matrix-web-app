@@ -6,7 +6,7 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 
-const handler = NextAuth({
+export const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
@@ -67,15 +67,15 @@ const handler = NextAuth({
       return session
     },
     async redirect({ url, baseUrl }) {
-      // Redirect către homepage după login reușit
-      if (url.startsWith('/') && !url.includes('/login')) return `${baseUrl}${url}`
-      if (url.startsWith(baseUrl)) return url
+      // Always redirect to home page after successful login
       return baseUrl
     }
   },
   pages: {
     signIn: '/login'
   }
-})
+}
+
+const handler = NextAuth(authOptions)
 
 export { handler as GET, handler as POST }
