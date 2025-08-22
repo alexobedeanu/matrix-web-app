@@ -50,17 +50,22 @@ export const authOptions = {
     })
   ],
   session: {
-    strategy: 'database'
+    strategy: 'jwt'
   },
   callbacks: {
-    async session({ session, user }) {
-      // Fix rapid: verificăm existența și returnăm o nouă sesiune cu id-ul injectat
-      if (user && session?.user) {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id
+      }
+      return token
+    },
+    async session({ session, token }) {
+      if (token && session?.user) {
         return {
           ...session,
           user: {
             ...session.user,
-            id: user.id,
+            id: token.id as string,
           },
         }
       }
