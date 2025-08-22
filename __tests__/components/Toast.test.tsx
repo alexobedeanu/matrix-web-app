@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { ToastProvider, useToast } from '@/components/ui/Toast'
 
 // Test component that uses the toast hook
@@ -47,8 +47,8 @@ describe('Toast Component', () => {
       expect(screen.getByText('Success message')).toBeInTheDocument()
     })
 
-    // Check for success styling
-    const toast = screen.getByText('Success message').closest('div')
+    // Check for success styling - find the container div with the styling
+    const toast = screen.getByText('Success message').closest('div[class*="border-green-400/50"]')
     expect(toast).toHaveClass('border-green-400/50', 'bg-green-900/80', 'text-green-300')
   })
 
@@ -65,7 +65,7 @@ describe('Toast Component', () => {
       expect(screen.getByText('Error message')).toBeInTheDocument()
     })
 
-    const toast = screen.getByText('Error message').closest('div')
+    const toast = screen.getByText('Error message').closest('div[class*="border-red-400/50"]')
     expect(toast).toHaveClass('border-red-400/50', 'bg-red-900/80', 'text-red-300')
   })
 
@@ -82,7 +82,7 @@ describe('Toast Component', () => {
       expect(screen.getByText('Warning message')).toBeInTheDocument()
     })
 
-    const toast = screen.getByText('Warning message').closest('div')
+    const toast = screen.getByText('Warning message').closest('div[class*="border-yellow-400/50"]')
     expect(toast).toHaveClass('border-yellow-400/50', 'bg-yellow-900/80', 'text-yellow-300')
   })
 
@@ -99,7 +99,7 @@ describe('Toast Component', () => {
       expect(screen.getByText('Info message')).toBeInTheDocument()
     })
 
-    const toast = screen.getByText('Info message').closest('div')
+    const toast = screen.getByText('Info message').closest('div[class*="border-cyan-400/50"]')
     expect(toast).toHaveClass('border-cyan-400/50', 'bg-cyan-900/80', 'text-cyan-300')
   })
 
@@ -141,7 +141,9 @@ describe('Toast Component', () => {
     })
 
     // Fast forward time
-    jest.advanceTimersByTime(5000)
+    act(() => {
+      jest.advanceTimersByTime(5000)
+    })
 
     await waitFor(() => {
       expect(screen.queryByText('Success message')).not.toBeInTheDocument()

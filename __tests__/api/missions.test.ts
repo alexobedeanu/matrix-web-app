@@ -118,17 +118,17 @@ describe('/api/missions', () => {
             id: 'user-mission-1',
             progress: 0,
             isCompleted: false,
-            startedAt: new Date(),
+            startedAt: today, // Make sure this is today
             completedAt: null,
             expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
             mission: {
               id: 'mission-1',
-              title: 'Test Mission',
-              description: 'Test description',
-              type: 'SOLVE_PUZZLES',
+              title: 'Digital Presence', // Use a title that exists in generateDailyMissions
+              description: 'Login to the matrix today',
+              type: 'DAILY_LOGIN',
               requirement: '{"target":1}',
-              xpReward: 50,
-              coinReward: 25,
+              xpReward: 10,
+              coinReward: 5,
               duration: 24,
               isDaily: true,
               isActive: true,
@@ -138,7 +138,7 @@ describe('/api/missions', () => {
         ],
         puzzleSolves: [],
         streak: 0,
-        lastActive: new Date(),
+        lastActive: today,
       }
 
       mockGetServerSession.mockResolvedValue({
@@ -152,7 +152,7 @@ describe('/api/missions', () => {
 
       expect(response.status).toBe(200)
       expect(data.dailyMissions).toHaveLength(1)
-      expect(data.dailyMissions[0].title).toBe('Test Mission')
+      expect(data.dailyMissions[0].title).toBe('Digital Presence')
     })
   })
 })

@@ -1,0 +1,220 @@
+// Development schema with SQLite
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  password      String?
+  image         String?
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Gamification
+  hackerAlias   String?   @unique
+  bio           String?
+  level         Int       @default(1)
+  xp            Int       @default(0)
+  coins         Int       @default(0)
+  streak        Int       @default(0)
+  lastActive    DateTime?
+  clanId        String?
+
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  puzzleSolves  PuzzleSolve[]
+  achievements  UserAchievement[]
+  missions      UserMission[]
+  clan          Clan?     @relation(fields: [clanId], references: [id])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Gamification Models
+model Clan {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  image       String?
+  leaderId    String?
+  xp          Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  members     User[]
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  icon        String
+  category    AchievementCategory
+  condition   String   // JSON condition for unlocking
+  xpReward    Int      @default(0)
+  coinReward  Int      @default(0)
+  rarity      AchievementRarity @default(COMMON)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  users       UserAchievement[]
+}
+
+model UserAchievement {
+  id           String    @id @default(cuid())
+  userId       String
+  achievementId String
+  unlockedAt   DateTime  @default(now())
+  
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement  Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, achievementId])
+}
+
+model Puzzle {
+  id          String   @id @default(cuid())
+  title       String   @unique
+  description String
+  category    PuzzleCategory
+  difficulty  Difficulty
+  content     String   // JSON content with challenge details
+  solution    String   // JSON solution details
+  xpReward    Int      @default(100)
+  coinReward  Int      @default(25)
+  hints       String   // JSON array of hints
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  solves      PuzzleSolve[]
+}
+
+model PuzzleSolve {
+  id         String   @id @default(cuid())
+  userId     String
+  puzzleId   String
+  timeToSolve Int?    // seconds
+  hintsUsed  Int      @default(0)
+  solvedAt   DateTime @default(now())
+  
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  puzzle     Puzzle   @relation(fields: [puzzleId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, puzzleId])
+}
+
+model Mission {
+  id          String   @id @default(cuid())
+  title       String   @unique
+  description String
+  type        MissionType
+  requirement String   // JSON requirement details
+  xpReward    Int      @default(50)
+  coinReward  Int      @default(25)
+  duration    Int      @default(24) // hours
+  isDaily     Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  users       UserMission[]
+}
+
+model UserMission {
+  id          String    @id @default(cuid())
+  userId      String
+  missionId   String
+  progress    Int       @default(0)
+  isCompleted Boolean   @default(false)
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+  expiresAt   DateTime
+  
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mission     Mission   @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, missionId])
+}
+
+// Enums
+enum AchievementCategory {
+  PUZZLE
+  SOCIAL  
+  PROGRESS
+  SPECIAL
+}
+
+enum AchievementRarity {
+  COMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+enum PuzzleCategory {
+  CRYPTOGRAPHY
+  REVERSE_ENGINEERING
+  WEB_SECURITY
+  NETWORK
+  FORENSICS
+  PROGRAMMING
+  LOGIC
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+  EXPERT
+  LEGENDARY
+}
+
+enum MissionType {
+  SOLVE_PUZZLES
+  DAILY_LOGIN
+  XP_GAIN
+  SOCIAL_INTERACTION
+  STREAK_MAINTAIN
+}

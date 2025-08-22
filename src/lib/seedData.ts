@@ -77,7 +77,7 @@ export async function seedPuzzles() {
     {
       title: 'Buffer Overflow Exploitation',
       description: 'Exploit a simple buffer overflow vulnerability',
-      category: 'BINARY_EXPLOITATION',
+      category: 'REVERSE_ENGINEERING',
       difficulty: 'HARD',
       content: JSON.stringify({
         type: 'buffer_overflow',

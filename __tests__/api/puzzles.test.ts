@@ -91,9 +91,9 @@ describe('/api/puzzles', () => {
       const data = await response.json()
 
       expect(response.status).toBe(200)
-      expect(data.puzzles).toHaveLength(1)
-      expect(data.puzzles[0].title).toBe('Test Puzzle')
-      expect(data.puzzles[0].isSolved).toBe(false)
+      expect(data).toHaveLength(1)
+      expect(data[0].title).toBe('Test Puzzle')
+      expect(data[0].solved).toBe(false)
     })
 
     it('should seed puzzles if none exist', async () => {
@@ -151,8 +151,8 @@ describe('/api/puzzles', () => {
       const data = await response.json()
 
       expect(response.status).toBe(200)
-      expect(data.puzzles[0].isSolved).toBe(true)
-      expect(data.puzzles[0].timeToSolve).toBe(120)
+      expect(data[0].solved).toBe(true)
+      expect(data[0].timeToSolve).toBe(120)
     })
   })
 })

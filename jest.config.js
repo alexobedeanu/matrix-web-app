@@ -12,9 +12,11 @@ const config = {
   testEnvironment: 'jsdom',
   // Add more setup options before each test is run
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  moduleNameMapping: {
+  testTimeout: 10000, // Increased timeout for database operations
+  moduleNameMapper: {
     '^@/components/(.*)$': '<rootDir>/src/components/$1',
     '^@/lib/(.*)$': '<rootDir>/src/lib/$1',
+    '^@/app/(.*)$': '<rootDir>/src/app/$1'
   },
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',

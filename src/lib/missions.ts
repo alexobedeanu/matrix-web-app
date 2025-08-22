@@ -270,7 +270,21 @@ export function checkMissionProgress(
 
   switch (mission.type) {
     case MissionType.SOLVE_PUZZLES:
-      progress = userStats.dailyPuzzlesSolved;
+      // Check if it's a specific category, difficulty, perfect, or speed mission
+      if (mission.id.includes('perfect')) {
+        progress = userStats.dailyPerfectSolves;
+      } else if (mission.id.includes('speed')) {
+        progress = userStats.dailySpeedSolves;
+      } else if (mission.id.includes('crypto') || mission.id.includes('web_sec') || mission.id.includes('network')) {
+        const category = extractCategoryFromMissionId(mission.id);
+        progress = userStats.dailyCategoryPuzzles[category] || 0;
+      } else if (mission.id.includes('easy') || mission.id.includes('hard') || mission.id.includes('medium')) {
+        const difficulty = extractDifficultyFromMissionId(mission.id);
+        progress = userStats.dailyDifficultyPuzzles[difficulty] || 0;
+      } else {
+        // General puzzle solving mission
+        progress = userStats.dailyPuzzlesSolved;
+      }
       break;
       
     case MissionType.XP_GAIN:
@@ -281,28 +295,12 @@ export function checkMissionProgress(
       progress = userStats.loggedInToday ? 1 : 0;
       break;
       
-    case MissionType.SOLVE_PUZZLES:
-      progress = userStats.dailyPerfectSolves;
-      break;
-      
-    case MissionType.SOLVE_PUZZLES:
-      progress = userStats.dailySpeedSolves;
-      break;
-      
-    case MissionType.SOLVE_PUZZLES:
-      // Extract category from mission ID
-      const category = extractCategoryFromMissionId(mission.id);
-      progress = userStats.dailyCategoryPuzzles[category] || 0;
-      break;
-      
-    case MissionType.SOLVE_PUZZLES:
-      // Extract difficulty from mission ID
-      const difficulty = extractDifficultyFromMissionId(mission.id);
-      progress = userStats.dailyDifficultyPuzzles[difficulty] || 0;
-      break;
-      
     case MissionType.STREAK_MAINTAIN:
       progress = userStats.currentStreak;
+      break;
+      
+    case MissionType.SOCIAL_INTERACTION:
+      progress = 0; // Not implemented yet
       break;
       
     default:
@@ -311,7 +309,7 @@ export function checkMissionProgress(
   
   completed = progress >= mission.target;
   
-  return { completed, progress: Math.min(progress, mission.target) };
+  return { completed, progress };
 }
 
 function extractCategoryFromMissionId(missionId: string): string {
@@ -338,5 +336,6 @@ function extractDifficultyFromMissionId(missionId: string): string {
  * Calculate mission progress percentage
  */
 export function getMissionProgressPercentage(progress: number, target: number): number {
+  if (target === 0) return 100; // Handle division by zero
   return Math.min(100, Math.max(0, (progress / target) * 100));
 }

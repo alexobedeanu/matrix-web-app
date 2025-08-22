@@ -1,3 +1,4 @@
+import React from 'react'
 import { render } from '@testing-library/react'
 import { SessionProvider } from 'next-auth/react'
 import { ToastProvider } from '@/components/ui/Toast'
@@ -14,13 +15,12 @@ export const mockSession = {
 }
 
 // Test wrapper with providers
-export function renderWithProviders(ui: React.ReactElement, { session = mockSession } = {}) {
+export function renderWithProviders(ui: React.ReactElement, options: { session?: any } = {}) {
+  const { session = mockSession } = options
   return render(
-    <SessionProvider session={session}>
-      <ToastProvider>
-        {ui}
-      </ToastProvider>
-    </SessionProvider>
+    React.createElement(SessionProvider, { session }, 
+      React.createElement(ToastProvider, null, ui)
+    )
   )
 }
 
