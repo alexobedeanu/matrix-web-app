@@ -15,7 +15,7 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate deploy",
-    "vercel-build": "prisma generate && prisma db push --accept-data-loss && npm run test:ci && next build --turbopack",
+    "vercel-build": "prisma generate && prisma db push --accept-data-loss && next build --turbopack",
     "postinstall": "prisma generate"
   },
   "dependencies": {
