@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database pentru development
+  postgres-dev:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: cyberpunk_app_dev
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cyberpunk_app_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-dev-network
+
+  # Web Application pentru development
+  web-app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://postgres:password@postgres-dev:5432/cyberpunk_app_dev?sslmode=disable
+      NEXTAUTH_SECRET: dev-secret-key-not-for-production
+      NEXTAUTH_URL: http://localhost:3000
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+    volumes:
+      # Mount source code pentru hot reload
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - app-dev-network
+
+  # Redis pentru development
+  redis-dev:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    networks:
+      - app-dev-network
+
+volumes:
+  postgres_dev_data:
+    driver: local
+
+networks:
+  app-dev-network:
+    driver: bridge

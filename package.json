@@ -15,8 +15,15 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate deploy",
+    "db:seed": "tsx prisma/seed.ts",
     "vercel-build": "prisma generate && prisma db push --accept-data-loss && next build --turbopack",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "docker:dev": "docker-compose -f docker-compose.dev.yml up -d",
+    "docker:prod": "docker-compose up -d",
+    "docker:build": "docker build -t cyberpunk-app:latest .",
+    "docker:stop": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:clean": "docker system prune -f && docker volume prune -f"
   },
   "dependencies": {
     "@next-auth/prisma-adapter": "1.0.7",
